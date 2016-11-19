@@ -1,0 +1,19 @@
+#!/bin/execlineb -P
+fdswap 1 3
+s6-ipcserver -1 in
+s6-sudod
+
+# jumping through hoops to avoid unwanted serial substitutions
+backtick -in USER { import -i IPCREMOTEEUID id -un $IPCREMOTEEUID }
+backtick -in HOME { import -i USER homeof $USER }
+backtick -in DEST { import -i USER printf /etc/s6/user/user:%s:3 $USER }
+multisubstitute { import -i USER import -i HOME import -i DEST }
+
+if { cp -a data $DEST }
+if { redirfd -w 1 ${DEST}/env/USER printf %s $USER }
+if { redirfd -w 1 ${DEST}/env/HOME printf %s $HOME }
+if { cp -a $DEST /run/s6 }
+if { s6-svscanctl -a /run/s6 }
+
+# ignore further user input
+true

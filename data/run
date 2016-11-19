@@ -1,0 +1,16 @@
+#!/bin/execlineb -P
+fdmove -c 2 1
+getcwd SERVICE import -i SERVICE
+emptyenv -p s6-envdir env
+import -i USER
+import -i HOME
+
+s6-envuidgid $USER
+if { import -i GID chgrp $GID supervise supervise/control }
+if { chmod g+x supervise }
+if { chmod g+w supervise/control }
+
+cd $HOME
+s6-applyuidgid -Uz
+tryexec { ./.user:run }
+s6-svc -O $SERVICE
