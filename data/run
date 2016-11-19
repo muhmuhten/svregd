@@ -1,9 +1,12 @@
 #!/bin/execlineb -P
 fdmove -c 2 1
-getcwd SERVICE import -i SERVICE
 emptyenv -p s6-envdir env
-import -i USER
-import -i HOME
+getcwd SERVICE
+multisubstitute {
+	import -i SERVICE
+	import -i USER
+	import -i HOME
+}
 
 s6-envuidgid $USER
 if { import -i GID chgrp $GID supervise supervise/control }
@@ -11,6 +14,15 @@ if { chmod g+x supervise }
 if { chmod g+w supervise/control }
 
 cd $HOME
+
+# work around bsd setgroups stupidity
+backtick -i GIDLIST {
+	multisubstitute {
+		import -i GID
+		import -i GIDLIST
+	}
+	printf %s,%s $GID $GIDLIST
+}
 s6-applyuidgid -Uz
-tryexec { ./.user:run }
+tryexec -a user:$USER { ./.user:run }
 s6-svc -O $SERVICE

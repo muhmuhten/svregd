@@ -1,8 +1,10 @@
 #!/bin/execlineb -P
 redirfd -w 2 /dev/null fdmove -c 2 1
 emptyenv -p s6-envdir ../env
-import -i USER
-import -i HOME
+multisubstitute {
+	import -i USER
+	import -i HOME
+}
 
 s6-setuidgid $USER
 s6-log t ${HOME}/.user:log
