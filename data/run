@@ -23,6 +23,8 @@ backtick -i GIDLIST {
 	}
 	printf %s,%s $GID $GIDLIST
 }
+setlogin $USER
+
 s6-applyuidgid -Uz
 tryexec -a user:$USER { ./.user:run }
 s6-svc -O $SERVICE
