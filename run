@@ -4,10 +4,14 @@ s6-ipcserver -1 in
 s6-sudod
 
 # jumping through hoops to avoid unwanted serial substitutions
-backtick -in USER { import -i IPCREMOTEEUID id -un $IPCREMOTEEUID }
-backtick -in HOME { import -i USER homeof $USER }
-backtick -in DEST { import -i USER printf /etc/s6/user/user:%s:3 $USER }
-multisubstitute { import -i USER import -i HOME import -i DEST }
+backtick -in USER { importas -i IPCREMOTEEUID EUID id -un $EUID }
+backtick -in HOME { importas -i USER USER homeof $USER }
+backtick -in DEST { importas -i USER USER printf /etc/s6/user/user:%s:3 $USER }
+multisubstitute {
+	importas -i USER USER
+	importas -i HOME HOME
+	importas -i DEST DEST
+}
 
 if { cp -a data $DEST }
 if { redirfd -w 1 ${DEST}/env/USER printf %s $USER }

@@ -2,15 +2,15 @@
 redirfd -w 2 /dev/null fdmove -c 2 1
 emptyenv -p s6-envdir ../env
 multisubstitute {
-	import -i USER
-	import -i HOME
+	importas -i USER USER
+	importas -i HOME HOME
 }
 
 s6-envuidgid $USER
 backtick -i GIDLIST {
 	multisubstitute {
-		import -i GID
-		import -i GIDLIST
+		importas -i GID GID
+		importas -i GIDLIST GIDLIST
 	}
 	printf %s,%s $GID $GIDLIST
 }

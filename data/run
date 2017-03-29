@@ -3,13 +3,13 @@ fdmove -c 2 1
 emptyenv -p s6-envdir env
 getcwd SERVICE
 multisubstitute {
-	import -i SERVICE
-	import -i USER
-	import -i HOME
+	importas -i SERVICE SERVICE
+	importas -i USER USER
+	importas -i HOME HOME
 }
 
 s6-envuidgid $USER
-if { import -i GID chgrp $GID supervise supervise/control }
+if { importas -i GID GID chgrp $GID supervise supervise/control }
 if { chmod g+x supervise }
 if { chmod g+w supervise/control }
 
@@ -18,8 +18,8 @@ cd $HOME
 # work around bsd setgroups stupidity
 backtick -i GIDLIST {
 	multisubstitute {
-		import -i GID
-		import -i GIDLIST
+		importas -i GID GID
+		importas -i GIDLIST GIDLIST
 	}
 	printf %s,%s $GID $GIDLIST
 }
